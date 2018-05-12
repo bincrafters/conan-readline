@@ -38,16 +38,12 @@ class ReadLineConan(ConanFile):
 
     def configure_autotools(self):
         if not self.autotools:
-            in_win = tools.os_info.is_windows == "Windows"
-            if in_win:
-                print("Running over WINDOWS")
-
             configure_args = ['--enable-static', '--disable-shared']
             if self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
             configure_args.append('--with-curses')
 
-            self.autotools = AutoToolsBuildEnvironment(self, win_bash=in_win)
+            self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self.autotools.fpic = self.options.fPIC
             self.autotools.configure(args=configure_args)
         return self.autotools
