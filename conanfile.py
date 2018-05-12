@@ -51,7 +51,6 @@ class ReadLineConan(ConanFile):
             configure_args = ['--enable-static', '--disable-shared']
             if self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
-            configure_args.append('--with-curses')
 
             self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             if self.settings.os != "Windows":
