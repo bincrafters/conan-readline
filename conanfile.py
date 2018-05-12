@@ -27,6 +27,9 @@ class ReadLineConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            pass
+            # TODO (uilian): Log warning about Curses
 
     def source(self):
         source_url = "https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline"
@@ -71,3 +74,5 @@ class ReadLineConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.append('termcap')
+        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            self.cpp_info.libs.append('curses')
