@@ -14,11 +14,16 @@ class ReadLineConan(ConanFile):
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "GPL-3"
     exports = ["LICENSE.md"]
+    exports_sources = ["readline_mingw.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = "shared=False", "fPIC=True"
     source_subfolder = "source_subfolder"
     autotools = None
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -28,6 +33,8 @@ class ReadLineConan(ConanFile):
         tools.get("{0}-{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
+        if self.settings.os == "Windows":
+            tools.patch(base_path=self.source_subfolder, patch_file="readline_mingw.patch")
 
     def system_requirements(self):
         if tools.os_info.linux_distro == "ubuntu":
@@ -44,7 +51,8 @@ class ReadLineConan(ConanFile):
             configure_args.append('--with-curses')
 
             self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self.autotools.fpic = self.options.fPIC
+            if self.settings.os != "Windows":
+                self.autotools.fpic = self.options.fPIC
             self.autotools.configure(args=configure_args)
         return self.autotools
 
