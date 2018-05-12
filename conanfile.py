@@ -29,13 +29,23 @@ class ReadLineConan(ConanFile):
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
 
+    def system_requirements(self):
+        if tools.os_info.linux_distro == "ubuntu":
+            arch = {'x86': 'i386', 'x86_64': 'amd64'}
+            installer = tools.SystemPackageTool()
+            libncurses = 'libncurses5-dev:%s' % arch[str(self.settings.arch)]
+            installer.install(libncurses)
+
     def configure_autotools(self):
         if not self.autotools:
             in_win = tools.os_info.is_windows == "Windows"
+            if in_win:
+                print("Running over WINDOWS")
 
             configure_args = ['--enable-static', '--disable-shared']
             if self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
+            configure_args.append('--with-curses')
 
             self.autotools = AutoToolsBuildEnvironment(self, win_bash=in_win)
             self.autotools.fpic = self.options.fPIC
@@ -55,3 +65,5 @@ class ReadLineConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.append('termcap')
