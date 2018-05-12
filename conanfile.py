@@ -33,7 +33,7 @@ class ReadLineConan(ConanFile):
         tools.get("{0}-{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             tools.patch(base_path=self.source_subfolder, patch_file="readline_mingw.patch")
 
     def system_requirements(self):
