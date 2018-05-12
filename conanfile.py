@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans.util.log import logger
 import os
 
 
@@ -28,8 +29,7 @@ class ReadLineConan(ConanFile):
     def configure(self):
         del self.settings.compiler.libcxx
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            pass
-            # TODO (uilian): Log warning about Curses
+            logger.warn("Readline requires ncurses installed")
 
     def source(self):
         source_url = "https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline"
