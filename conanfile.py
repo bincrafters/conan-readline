@@ -25,6 +25,8 @@ class ReadLineConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if self.settings.os == "Macos":
+            del self.options.shared
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -49,7 +51,7 @@ class ReadLineConan(ConanFile):
     def configure_autotools(self):
         if not self.autotools:
             configure_args = ['--enable-static', '--disable-shared']
-            if self.options.shared:
+            if self.options.shared or self.settings.os == "Macos":
                 configure_args = ['--enable-shared', '--disable-static']
 
             self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
