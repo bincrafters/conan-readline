@@ -13,6 +13,7 @@ environment:
 install:
   - set PATH=%PATH%;%PYTHON%/Scripts/
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -S --verbose --debug mingw-w64-x86_64-termcap"
+  - C:\msys64\usr\bin\bash -lc "pacman -Ql mingw-w64-x86_64-termcap"
   - C:\msys64\usr\bin\find / -type f -name libtermcap.a"
   - C:\msys64\usr\bin\find c:/ -type f -name libtermcap.a"
   - pip.exe install conan --upgrade
