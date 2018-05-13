@@ -8,6 +8,7 @@ environment:
     matrix:
         - MINGW_CONFIGURATIONS: '4.9@x86_64@seh@posix, 5@x86_64@seh@posix, 6@x86_64@seh@posix, 7@x86_64@seh@posix'
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          LIBRARY_PATH: "c:\\mingw64\\lib"
 
 install:
   - set PATH=%PATH%;%PYTHON%/Scripts/
