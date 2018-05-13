@@ -25,8 +25,9 @@ class ReadLineConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Macos":
-            del self.options.shared
+        if self.settings.os == "Macos" and not self.options.shared:
+            logger.warn("Macos only supports shared")
+            self.options.shared = True
 
     def configure(self):
         del self.settings.compiler.libcxx
