@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.util.log import logger
 import os
+from conans import ConanFile, AutoToolsBuildEnvironment, tools
 
 
 class ReadLineConan(ConanFile):
@@ -18,58 +17,54 @@ class ReadLineConan(ConanFile):
     exports_sources = ["readline_mingw.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = "shared=False", "fPIC=True"
-    source_subfolder = "source_subfolder"
-    autotools = None
+    default_options = {"shared": False, "fPIC": True}
+    _source_subfolder = "source_subfolder"
+    _autotools = None
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Macos" and not self.options.shared:
-            logger.warn("Macos only supports shared")
-            self.options.shared = True
+        if self.settings.os == "Macos":
+            del self.options.shared
 
     def configure(self):
         del self.settings.compiler.libcxx
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            logger.warn("Readline requires ncurses installed")
 
     def source(self):
         source_url = "https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline"
         tools.get("{0}-{1}.tar.gz".format(source_url, self.version))
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            tools.patch(base_path=self.source_subfolder, patch_file="readline_mingw.patch")
+        os.rename(extracted_dir, self._source_subfolder)
 
     def system_requirements(self):
+        self.output.warn("Readline requires ncurses installed")
         if tools.os_info.linux_distro == "ubuntu":
             arch = {'x86': 'i386', 'x86_64': 'amd64'}
             installer = tools.SystemPackageTool()
             libncurses = 'libncurses5-dev:%s' % arch[str(self.settings.arch)]
             installer.install(libncurses)
 
-    def configure_autotools(self):
-        if not self.autotools:
+    def _configure_autotools(self):
+        if not self._autotools:
             configure_args = ['--enable-static', '--disable-shared']
-            if self.options.shared or self.settings.os == "Macos":
+            if self.settings.os == "Macos" or self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
 
-            self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            if self.settings.os != "Windows":
-                self.autotools.fpic = self.options.fPIC
-            self.autotools.configure(args=configure_args)
-        return self.autotools
+            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+            self._autotools.configure(args=configure_args)
+        return self._autotools
 
     def build(self):
-        with tools.chdir(self.source_subfolder):
-            autotools = self.configure_autotools()
+        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            tools.patch(base_path=self._source_subfolder, patch_file="readline_mingw.patch")
+        with tools.chdir(self._source_subfolder):
+            autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self.source_subfolder)
-        with tools.chdir(self.source_subfolder):
-            autotools = self.configure_autotools()
+        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        with tools.chdir(self._source_subfolder):
+            autotools = self._configure_autotools()
             autotools.make(["install"])
 
     def package_info(self):
