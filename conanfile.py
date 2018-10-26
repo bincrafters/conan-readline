@@ -69,6 +69,5 @@ class ReadLineConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        if self.settings.os == "Linux" or \
-            (self.settings.os == "Windows" and self.settings.compiler == "gcc"):
+        if self.settings.os == "Linux":
             self.cpp_info.libs.append('termcap')
