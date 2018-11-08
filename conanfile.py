@@ -41,6 +41,7 @@ class ReadLineConan(ConanFile):
 
     def _configure_autotools(self):
         if not self._autotools:
+            tools.replace_in_file("Makefile.in", "@TERMCAP_LIB@", "termcap")
             configure_args = ['--enable-static', '--disable-shared']
             if self.settings.os == "Macos" or self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
