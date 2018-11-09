@@ -48,7 +48,7 @@ class ReadLineConan(ConanFile):
             configure_args.append('--with-curses=no')
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self._autotools.configure(args=configure_args)
-            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)", "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) $(TERMCAP_LIB)")
+            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)", "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
         return self._autotools
 
     def build(self):
