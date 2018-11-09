@@ -46,9 +46,9 @@ class ReadLineConan(ConanFile):
             if self.settings.os == "Macos" or self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
             configure_args.append('--with-curses=no')
-
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self._autotools.configure(args=configure_args)
+            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)", "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) $(TERMCAP_LIB)")
         return self._autotools
 
     def build(self):
