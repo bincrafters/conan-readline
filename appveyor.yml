@@ -1,18 +1,20 @@
 build: false
 
 environment:
-    PYTHON: "C:\\Python27"
-    PYTHON_VERSION: "2.7.8"
-    PYTHON_ARCH: "32"
+    PYTHON: "C:\\Python37"
 
     matrix:
-        - MINGW_CONFIGURATIONS: '4.9@x86_64@seh@posix, 5@x86_64@seh@posix, 6@x86_64@seh@posix, 7@x86_64@seh@posix'
+        - MINGW_CONFIGURATIONS: '4.9@x86_64@seh@posix'
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
-          LDFLAGS: "-L/c/msys64/mingw64/lib"
+        - MINGW_CONFIGURATIONS: '5@x86_64@seh@posix'
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+        - MINGW_CONFIGURATIONS: '6@x86_64@seh@posix'
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+        - MINGW_CONFIGURATIONS: '7@x86_64@seh@posix'
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
 
 install:
   - set PATH=%PATH%;%PYTHON%/Scripts/
-  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -S --verbose --debug mingw-w64-x86_64-termcap"
   - pip.exe install conan --upgrade
   - pip.exe install conan_package_tools bincrafters_package_tools
   - conan user # It creates the conan data directory

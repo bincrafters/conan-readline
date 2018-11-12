@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.util.log import logger
 import os
+from conans import ConanFile, AutoToolsBuildEnvironment, tools
 
 
 class ReadLineConan(ConanFile):
@@ -12,68 +11,58 @@ class ReadLineConan(ConanFile):
     description = "A set of functions for use by applications that allow users to edit command lines as they are typed in"
     url = "https://github.com/bincrafters/conan-readline"
     homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
+    topics = ("conan", "readline", "cli", "terminal", "command")
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "GPL-3"
     exports = ["LICENSE.md"]
     exports_sources = ["readline_mingw.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = "shared=False", "fPIC=True"
-    source_subfolder = "source_subfolder"
-    autotools = None
+    default_options = {"shared": False, "fPIC": True}
+    requires = ("termcap/1.3.1@bincrafters/stable")
+    _source_subfolder = "source_subfolder"
+    _autotools = None
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Macos" and not self.options.shared:
-            logger.warn("Macos only supports shared")
-            self.options.shared = True
+        if self.settings.os == "Macos":
+            del self.options.shared
 
     def configure(self):
         del self.settings.compiler.libcxx
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            logger.warn("Readline requires ncurses installed")
 
     def source(self):
         source_url = "https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline"
-        tools.get("{0}-{1}.tar.gz".format(source_url, self.version))
+        sha256 = "05097f6e1785c93e3d55456b12c383920d6803cc3e7ed4d68fe43f56d5acd99d"
+        tools.get("{0}-{1}.tar.gz".format(source_url, self.version), sha256=sha256)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            tools.patch(base_path=self.source_subfolder, patch_file="readline_mingw.patch")
+        os.rename(extracted_dir, self._source_subfolder)
 
-    def system_requirements(self):
-        if tools.os_info.linux_distro == "ubuntu":
-            arch = {'x86': 'i386', 'x86_64': 'amd64'}
-            installer = tools.SystemPackageTool()
-            libncurses = 'libncurses5-dev:%s' % arch[str(self.settings.arch)]
-            installer.install(libncurses)
-
-    def configure_autotools(self):
-        if not self.autotools:
+    def _configure_autotools(self):
+        if not self._autotools:
+            tools.replace_in_file("Makefile.in", "@TERMCAP_LIB@", "-ltermcap")
             configure_args = ['--enable-static', '--disable-shared']
-            if self.options.shared or self.settings.os == "Macos":
+            if self.settings.os == "Macos" or self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
-
-            self.autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            if self.settings.os != "Windows":
-                self.autotools.fpic = self.options.fPIC
-            self.autotools.configure(args=configure_args)
-        return self.autotools
+            configure_args.append('--with-curses=no')
+            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+            self._autotools.configure(args=configure_args)
+            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)", "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
+        return self._autotools
 
     def build(self):
-        with tools.chdir(self.source_subfolder):
-            autotools = self.configure_autotools()
+        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            tools.patch(base_path=self._source_subfolder, patch_file="readline_mingw.patch")
+        with tools.chdir(self._source_subfolder):
+            autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self.source_subfolder)
-        with tools.chdir(self.source_subfolder):
-            autotools = self.configure_autotools()
-            autotools.make(["install"])
+        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        with tools.chdir(self._source_subfolder):
+            autotools = self._configure_autotools()
+            autotools.install()
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        if self.settings.os == "Linux" or \
-            (self.settings.os == "Windows" and self.settings.compiler == "gcc"):
-            self.cpp_info.libs.append('termcap')

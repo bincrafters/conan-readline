@@ -1,9 +1,11 @@
---- colors.c	2016-01-25 10:38:00.000000000 -0500
-+++ colors.c	2016-10-27 15:53:42.182834700 -0400
+diff --git a/colors.c b/colors.c
+index 7859f5d..5d1835a 100644
+--- a/colors.c
++++ b/colors.c
 @@ -37,6 +37,10 @@
  #include "posixstat.h" // stat related macros (S_ISREG, ...)
  #include <fcntl.h> // S_ISUID
-
+ 
 +#ifndef S_ISDIR
 +#define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 +#endif
@@ -11,7 +13,18 @@
  // strlen()
  #if defined (HAVE_STRING_H)
  #  include <string.h>
-@@ -182,12 +186,17 @@
+@@ -170,8 +174,10 @@ _rl_print_color_indicator (const char *f)
+ 
+   if (linkok == -1 && _rl_color_indicator[C_MISSING].string != NULL)
+     colored_filetype = C_MISSING;
++#if defined (HAVE_LSTAT)
+   else if (linkok == 0 && S_ISLNK(mode) && _rl_color_indicator[C_ORPHAN].string != NULL)
+     colored_filetype = C_ORPHAN;	/* dangling symlink */
++#endif
+   else if(stat_ok != 0)
+     {
+       static enum indicator_no filetype_indicator[] = FILETYPE_INDICATORS;
+@@ -182,12 +188,17 @@ _rl_print_color_indicator (const char *f)
        if (S_ISREG (mode))
          {
            colored_filetype = C_FILE;
@@ -32,7 +45,7 @@
              colored_filetype = C_CAP;
            else if ((mode & S_IXUGO) != 0 && is_colored (C_EXEC))
              colored_filetype = C_EXEC;
-@@ -211,12 +220,16 @@
+@@ -211,12 +222,16 @@ _rl_print_color_indicator (const char *f)
              colored_filetype = C_STICKY;
  #endif
          }
@@ -49,13 +62,14 @@
        else if (S_ISBLK (mode))
          colored_filetype = C_BLK;
        else if (S_ISCHR (mode))
-
---- histfile.c	2016-10-27 16:31:45.300161000 -0400
-+++ histfile.c	2016-10-27 16:54:31.600897400 -0400
-@@ -606,12 +606,14 @@
+diff --git a/histfile.c b/histfile.c
+index 5b057cd..2e69c58 100644
+--- a/histfile.c
++++ b/histfile.c
+@@ -606,12 +606,14 @@ history_truncate_file (fname, lines)
        history_lines_written_to_file = 0;
      }
-
+ 
 +#if defined (HAVE_CHOWN)
    /* Make sure the new filename is owned by the same user as the old.  If one
       user is running this, it's a no-op.  If the shell is running after sudo
@@ -64,13 +78,13 @@
    if (rv == 0 && exists)
      r = chown (filename, finfo.st_uid, finfo.st_gid);
 +#endif
-
+ 
    xfree (filename);
    FREE (tempname);
-@@ -753,12 +755,14 @@
+@@ -753,12 +755,14 @@ mmap_error:
        history_lines_written_to_file = 0;
      }
-
+ 
 +#if defined (HAVE_CHOWN)
    /* Make sure the new filename is owned by the same user as the old.  If one
       user is running this, it's a no-op.  If the shell is running after sudo
@@ -79,6 +93,6 @@
    if (rv == 0 && exists)
      mode = chown (histname, finfo.st_uid, finfo.st_gid);
 +#endif
-
+ 
    FREE (histname);
    FREE (tempname);
