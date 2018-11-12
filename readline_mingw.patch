@@ -1,12 +1,12 @@
 diff --git a/colors.c b/colors.c
-index b431388..5d1835a 100644
+index 7859f5d..d055383 100644
 --- a/colors.c
 +++ b/colors.c
-@@ -174,8 +174,10 @@ _rl_print_color_indicator (const char *f)
+@@ -170,8 +170,10 @@ _rl_print_color_indicator (const char *f)
  
    if (linkok == -1 && _rl_color_indicator[C_MISSING].string != NULL)
      colored_filetype = C_MISSING;
-+#if defined (HAVE_LSTAT)
++#if defined (HAVE_LSTAT) 
    else if (linkok == 0 && S_ISLNK(mode) && _rl_color_indicator[C_ORPHAN].string != NULL)
      colored_filetype = C_ORPHAN;	/* dangling symlink */
 +#endif
