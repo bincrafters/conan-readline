@@ -3,6 +3,7 @@
 
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans.errors import ConanInvalidConfiguration
 
 
 class ReadLineConan(ConanFile):
@@ -31,6 +32,8 @@ class ReadLineConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+            raise ConanInvalidConfiguration("readline is not supported for Visual Studio")
 
     def source(self):
         source_url = "https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline"
