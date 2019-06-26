@@ -67,5 +67,12 @@ class ReadLineConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
+        if tools.os_info.is_macos:
+            libdir = os.path.join(self.package_folder, 'lib')
+
+            self.run("chmod +w {p}/libreadline.{v}.dylib".format(p=libdir,
+                                                                 v=self.version))
+            self.run("chmod +w {p}/libhistory.{v}.dylib".format(p=libdir,
+                                                                v=self.version))
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
