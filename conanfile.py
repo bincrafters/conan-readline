@@ -9,7 +9,8 @@ from conans.errors import ConanInvalidConfiguration
 class ReadLineConan(ConanFile):
     name = "readline"
     version = "7.0"
-    description = "A set of functions for use by applications that allow users to edit command lines as they are typed in"
+    description = "A set of functions for use by applications that allow users to edit command lines as they are " \
+                  "typed in"
     url = "https://github.com/bincrafters/conan-readline"
     homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
     topics = ("conan", "readline", "cli", "terminal", "command")
@@ -20,7 +21,7 @@ class ReadLineConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    requires = ("termcap/1.3.1@bincrafters/stable")
+    requires = ("termcap/1.3.1@bincrafters/stable",)
     _source_subfolder = "source_subfolder"
     _autotools = None
 
@@ -50,11 +51,12 @@ class ReadLineConan(ConanFile):
                 configure_args = ['--enable-shared', '--disable-static']
             autotools_env = None
             if tools.cross_building(self.settings):
-                autotools_env = { 'bash_cv_wcwidth_broken': 'yes' }
+                autotools_env = {'bash_cv_wcwidth_broken': 'yes'}
             configure_args.append('--with-curses=no')
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self._autotools.configure(args=configure_args, vars=autotools_env)
-            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)", "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
+            tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
+                                  "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
         return self._autotools
 
     def build(self):
