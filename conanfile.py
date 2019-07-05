@@ -49,12 +49,11 @@ class ReadLineConan(ConanFile):
             configure_args = ['--enable-static', '--disable-shared']
             if self.settings.os == "Macos" or self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
-            autotools_env = None
             if tools.cross_building(self.settings):
-                autotools_env = {'bash_cv_wcwidth_broken': 'yes'}
+                configure_args.append('bash_cv_wcwidth_broken=yes')
             configure_args.append('--with-curses=no')
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(args=configure_args, vars=autotools_env)
+            self._autotools.configure(args=configure_args)
             tools.replace_in_file(os.path.join("shlib", "Makefile"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
                                   "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
         return self._autotools
