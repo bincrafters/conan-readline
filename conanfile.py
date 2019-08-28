@@ -28,8 +28,8 @@ class ReadLineConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Macos":
-            del self.options.shared
+        # if self.settings.os == "Macos":
+        #     del self.options.shared
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -47,7 +47,7 @@ class ReadLineConan(ConanFile):
         if not self._autotools:
             tools.replace_in_file("Makefile.in", "@TERMCAP_LIB@", "-ltermcap")
             configure_args = ['--enable-static', '--disable-shared']
-            if self.settings.os == "Macos" or self.options.shared:
+            if self.options.shared:
                 configure_args = ['--enable-shared', '--disable-static']
             if tools.cross_building(self.settings):
                 configure_args.append('bash_cv_wcwidth_broken=yes')
