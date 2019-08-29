@@ -69,7 +69,7 @@ class ReadLineConan(ConanFile):
             autotools = self._configure_autotools()
             autotools.install()
 
-        if tools.os_info.is_macos:
+        if tools.os_info.is_macos and self.options.shared:
             libdir = os.path.join(self.package_folder, 'lib')
 
             self.run("chmod +w {p}/libreadline.{v}.dylib".format(p=libdir,
