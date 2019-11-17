@@ -11,7 +11,6 @@ class ReadLineConan(ConanFile):
     url = "https://github.com/bincrafters/conan-readline"
     homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
     topics = ("conan", "readline", "cli", "terminal", "command")
-    author = "Bincrafters <bincrafters@gmail.com>"
     license = "GPL-3.0-only"
     exports = ["LICENSE.md"]
     exports_sources = ["readline_mingw.patch"]
