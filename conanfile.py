@@ -17,7 +17,7 @@ class ReadLineConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    requires = ("termcap/1.3.1@bincrafters/stable",)
+    requires = ("termcap/1.3.1",)
     _source_subfolder = "source_subfolder"
     _autotools = None
 
