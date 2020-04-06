@@ -12,7 +12,6 @@ class ReadLineConan(ConanFile):
     homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
     topics = ("conan", "readline", "cli", "terminal", "command")
     license = "GPL-3.0-only"
-    exports = ["LICENSE.md"]
     exports_sources = ["readline_mingw.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
